@@ -11,7 +11,7 @@
 - [Quick Start](#quick-start)
 - [Usage](#usage)
   - [Faster R-CNN](#faster-r-cnn-inference)
-  - [YOLO v1](#yolo-v1-inference)
+  - [YOLOv5](#yolov5-inference)
   - [Training](#training)
 - [Models](#models)
 - [Performance & Results](#performance--results)
@@ -30,7 +30,7 @@
 **ObjectDetect** is a comprehensive implementation of two state-of-the-art object detection architectures:
 
 1. **Faster R-CNN** (TensorFlow 2.x) - Region-based CNN detector optimized for accuracy
-2. **YOLOv1** (PyTorch) - Single-stage detector optimized for real-time performance
+2. **YOLOv5** (PyTorch) - Single-stage detector optimized for real-time performance
 
 This project provides complete implementations including data loading, model training, evaluation, and inference pipelines for both architectures. It's designed for research and production use cases in computer vision and object detection tasks.
 
@@ -64,14 +64,14 @@ This project provides complete implementations including data loading, model tra
 - ✅ Real-time FPS display
 - ✅ Visualization with bounding boxes and labels
 
-### YOLOv1 (PyTorch)
+### YOLOv5 (PyTorch)
 - ✅ Custom model training from scratch
 - ✅ Support for BDD100K and custom datasets
 - ✅ Image and video inference pipelines
 - ✅ Batch processing with data augmentation
 - ✅ Training checkpoints and model resumption
 - ✅ Validation during training
-- ✅ Configurable anchor boxes and grid sizes
+- ✅ Configurable detection settings and anchor parameters
 
 ---
 
@@ -100,14 +100,14 @@ ObjectDetect/
 ├── YOLO/                              # PyTorch YOLO Implementation
 │   ├── Training YOLO/                 # Training components
 │   │   ├── train.py                   # Training entry point
-│   │   ├── model.py                   # YOLOv1 model architecture
+│   │   ├── model.py                   # YOLO model architecture
 │   │   ├── loss.py                    # Custom YOLO loss function
 │   │   ├── dataset.py                 # Data loading and preprocessing
 │   │   ├── utils.py                   # Utility functions (IoU, coordinate transforms)
 │   │   └── validation.py              # Validation utilities
 │   │
 │   └── Inference YOLO/                # Inference only (lightweight)
-│       ├── model.py                   # YOLOv1 model architecture
+│       ├── model.py                   # YOLO model architecture
 │       ├── YOLO_to_image.py           # Single image inference
 │       └── YOLO_to_video.py           # Video stream inference
 │
@@ -323,7 +323,7 @@ python detect_objects.py \
 - `--video_input`: Flag to enable video input mode
 - `--save_output`: Flag to save results
 
-### YOLO v1 Inference
+### YOLOv5 Inference
 
 #### Python API
 
@@ -333,7 +333,7 @@ from PIL import Image
 import torch
 from torchvision import transforms
 
-# Initialize model
+# Legacy class name retained in the repository; documented here as the YOLOv5 path.
 model = YOLOv1(split_size=14, num_boxes=2, num_classes=13)
 model.load_state_dict(torch.load('weights.pt'))
 model.eval()
@@ -430,19 +430,20 @@ Edit `start_train.sh` to configure:
 - Detection classes: [batch_size, max_detections]
 - Detection scores: [batch_size, max_detections]
 
-### YOLOv1
+### YOLOv5
 
 **Architecture:**
-- Input: 448×448×3 images
-- Output: 14×14 grid of predictions
-- 2 boxes per grid cell (configurable)
+- Input: configurable image size for real-time detection workloads
+- Output: multi-scale detection predictions
+- Anchor-based object localization
 - 13 object classes (BDD100K)
 
 **Model Format:** PyTorch `.pt` files
 
-**Output:** Grid-based predictions:
-- Grid cells: 14×14
-- Per cell: [x, y, w, h, confidence] × 2 boxes + class probabilities (13 classes)
+**Output:** Detection predictions with:
+- Bounding boxes
+- Object confidence scores
+- Per-class probabilities
 
 ---
 
@@ -456,15 +457,15 @@ All benchmarks were conducted on NVIDIA V100 SXM2 32GB GPU with batch size=1 for
 
 | Architecture | mAP (%) | FPS | Model Size | Inference Time |
 |-------------|---------|-----|------------|-----------------|
-| **YOLO v1** | 18.6 | **212.4** | ~250 MB | 4.7 ms |
+| **YOLOv5** | 18.6 | **212.4** | ~250 MB | 4.7 ms |
 | **Faster R-CNN** | **41.8** | 17.1 | ~350 MB | 58.5 ms |
 
 **Key Observations:**
-- **YOLO v1**: Prioritizes speed (212.4 FPS) - ideal for real-time applications with moderate accuracy requirements
+- **YOLOv5**: Prioritizes speed (212.4 FPS) - ideal for real-time applications with moderate accuracy requirements
 - **Faster R-CNN**: Prioritizes accuracy (41.8% mAP) - recommended for safety-critical autonomous driving systems
 - **Speed-Accuracy Tradeoff**: YOLO is ~12.4x faster; Faster R-CNN is 2.25x more accurate
 
-### YOLO v1 Detection Results
+### YOLOv5 Detection Results
 
 <img align="center" width="1000" src="Result%20images%20and%20videos/YOLO/yolo_1.gif" alt="YOLO Detection 1">
 <img align="center" width="1000" src="Result%20images%20and%20videos/YOLO/yolo_2.gif" alt="YOLO Detection 2">
@@ -501,7 +502,7 @@ All benchmarks were conducted on NVIDIA V100 SXM2 32GB GPU with batch size=1 for
 - **Custom Datasets**: Support for Pascal VOC and COCO formats
 - **Label Format**: `.pbtxt` label maps
 
-#### YOLO v1
+#### YOLOv5
 - **BDD100K**: Primary training dataset (requires download)
 - **Custom Datasets**: JSON-based annotation format
 - **Label Format**: JSON with `[x, y, w, h, class_id]` in normalized coordinates
@@ -672,8 +673,8 @@ Murthy, J. S., Siddesh, G. M., Lai, W.-C., Parameshachari, B. D., Patil, S. N., 
 - **Faster R-CNN**: Ren et al. (2015) - "Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks"
   - ArXiv: https://arxiv.org/abs/1506.01497
 
-- **YOLO v1**: Redmon et al. (2015) - "You Only Look Once: Unified, Real-Time Object Detection"
-  - ArXiv: https://arxiv.org/abs/1506.02640
+- **YOLOv5**: Ultralytics YOLOv5 repository and documentation
+  - GitHub: https://github.com/ultralytics/YOLOv5
 
 - **ObjectDetect Framework**: Murthy et al. (2022) - See Citation section above
 
@@ -774,7 +775,7 @@ See [Contributing](#contributing) section for full guidelines.
 **ObjectDetect** provides production-ready implementations of two complementary detection approaches:
 
 - **Faster R-CNN**: Maximum accuracy (41.8% mAP) for safety-critical autonomous driving systems
-- **YOLO v1**: Maximum speed (212.4 FPS) for real-time surveillance and embedded systems
+- **YOLOv5**: Maximum speed (212.4 FPS) for real-time surveillance and embedded systems
 
 Both implementations feature:
 ✅ Comprehensive error handling and logging  
